@@ -6,6 +6,8 @@ use App\Exports\PelanggaranExport;
 use App\Models\Pelanggaran;
 use App\Models\User;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,10 +24,16 @@ class PelanggaranController extends Controller
     public function index()
     {
         if(Auth::user()->role === 'Siswa') {
-            $data['pelanggaran'] = Pelanggaran::where('user_id', Auth::id())->get();
+            $data['pelanggaran'] = Pelanggaran::where('user_id', Auth::id())->with('siswa')->get();
         } else {
-            $data['pelanggaran'] = Pelanggaran::get();
+            $data['pelanggaran'] = Pelanggaran::with('siswa')->get();
         }
+        
+        $data['pelanggaran'] = $data['pelanggaran']->map(function ($item) {
+            $item->total_poin = $item->siswa->pelanggaran->sum('poin');
+            return $item;
+        });
+
         
         return view('pages.pelanggaran.index', $data);
     }
@@ -165,5 +173,56 @@ class PelanggaranController extends Controller
         $sampai_tanggal = Carbon::create($request->sampai_tanggal);
 
         return Excel::download(new PelanggaranExport($dari_tanggal, $sampai_tanggal), 'laporan-pelanggaran.xlsx');
+    }
+
+    public function cetakSp($id)
+    {
+        $dataPelanggaran = Pelanggaran::with('siswa.pelanggaran')->find($id);
+        
+        $totalPoinPelanggaran = $dataPelanggaran?->siswa?->pelanggaran?->sum('poin') ?? 0;
+
+        $jenisSp = null;
+        if($totalPoinPelanggaran === 100) {
+            // dd('pulang');
+        } else if ($totalPoinPelanggaran >= 75) {
+            $jenisSp = 'SP III';
+            } else if ($totalPoinPelanggaran >= 50) {
+            $jenisSp = 'SP II';
+            } else if ($totalPoinPelanggaran >= 30) {
+            $jenisSp = 'SP I';
+        } else {
+            // dd('nonn');
+        }
+
+        $randomString = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
+
+        $data['siswa']       = $dataPelanggaran->siswa;
+        $data['jenis_sp']    = $jenisSp;
+        $data['nomor_sp']    = date('d').date('m').date('y').'-'.$randomString;
+        $data['pelanggaran'] = $dataPelanggaran;
+        $data['logo']        = base64_encode(file_get_contents('images/Aspose.Words.4afedd3b-fb80-4950-98e6-b24e75b7b054.001.jpeg'));
+
+        // Render the view to HTML
+        $html = view('exports.surat_peringatan', $data)->render();
+        
+        // Setup Dompdf options
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        
+        // Instantiate Dompdf with options
+        $dompdf = new Dompdf($options);
+        
+        // Load HTML content
+        $dompdf->loadHtml($html);
+        
+        // Set paper size and orientation
+        $dompdf->setPaper('A4', 'portrait');
+        
+        // Render PDF (output to browser or file)
+        $dompdf->render();
+        
+        // Output PDF to the browser
+        return $dompdf->stream('lpj_gudep.pdf');
     }
 }

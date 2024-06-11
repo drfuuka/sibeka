@@ -50,6 +50,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('guru', GuruController::class)->only('index');
     });
 
+    // Route::middleware('role:BK,Guru')->group(function () {
+        Route::post('pelanggaran/{id}/cetak-sp', [PelanggaranController::class, 'cetakSp'])->name('pelanggaran.cetak-sp');
+    // });
     
     Route::post('pelanggaran/cetak', [PelanggaranController::class, 'cetak'])->name('pelanggaran.cetak');
     Route::middleware('role:BK')->group(function () {

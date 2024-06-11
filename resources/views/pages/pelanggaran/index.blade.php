@@ -8,8 +8,8 @@
 @section('content')
     <nav class="page-breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Pengguna</li>
-            <li class="breadcrumb-item active" aria-current="page">Siswa</li>
+            <li class="breadcrumb-item">Pelanggaran</li>
+            <li class="breadcrumb-item active" aria-current="page">Daftar Pelanggaran</li>
         </ol>
     </nav>
 
@@ -19,16 +19,18 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex flex-column">
-                            <h6 class="card-title">Data Siswa</h6>
-                            <p class="text-muted mb-3">List data pelanggaran.</p>
+                            <h6 class="card-title">Data Pelanggaran</h6>
+                            <p class="text-muted mb-3">List data pelanggaran siswa.</p>
                         </div>
 
                         <div class="d-flex gap-3 align-items-center">
-                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
-                                <i class="link-icon me-1" data-feather="printer" width="18"></i>
-                                Cetak Laporan
-                            </button>
+                            @if (Auth::user()->role !== 'Siswa')
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal">
+                                    <i class="link-icon me-1" data-feather="printer" width="18"></i>
+                                    Cetak Laporan
+                                </button>
+                            @endif
 
                             <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                                 aria-hidden="true">
@@ -101,9 +103,10 @@
                                     <th>Tanggal</th>
                                     <th>Jenis Pelanggaran</th>
                                     <th>Poin</th>
+                                    <th>Total Poin Pelanggaran</th>
                                     <th>Pelapor</th>
 
-                                    @if (Auth::user()->role === 'BK')
+                                    @if (Auth::user()->role === 'BK' || Auth::user()->role === 'Guru')
                                         <th>Aksi</th>
                                     @endif
                                 </tr>
@@ -117,23 +120,33 @@
                                         <td>{{ $item->tanggal }}</td>
                                         <td>{{ $item->jenis_pelanggaran }}</td>
                                         <td>{{ $item->poin }}</td>
+                                        <td>{{ $item->total_poin }}</td>
                                         <td>{{ $item->pelapor }}</td>
-                                        @if (Auth::user()->role === 'BK')
+                                        @if (Auth::user()->role === 'BK' || Auth::user()->role === 'Guru')
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    <a href="{{ route('pelanggaran.edit', $item->id) }}"
-                                                        class="btn btn-primary btn-sm"><i data-feather="pencil"
-                                                            width="15"></i></i>
-                                                        Edit</button>
-                                                    </a>
-                                                    <form action="{{ route('pelanggaran.destroy', $item->id) }}"
+                                                    <form action="{{ route('pelanggaran.cetak-sp', $item->id) }}"
                                                         method="POST">
                                                         @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm"><i
-                                                                data-feather="trash-2" width="15"></i></i>
-                                                            Hapus</button>
+                                                        <button type="submit" class="btn btn-outline-primary btn-sm"><i
+                                                                data-feather="printer" width="15"></i>
+                                                            Cetak SP</button>
                                                     </form>
+                                                    @if (Auth::user()->role === 'BK')
+                                                        <a href="{{ route('pelanggaran.edit', $item->id) }}"
+                                                            class="btn btn-primary btn-sm"><i data-feather="edit-2"
+                                                                width="15"></i>
+                                                            Edit</button>
+                                                        </a>
+                                                        <form action="{{ route('pelanggaran.destroy', $item->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger btn-sm"><i
+                                                                    data-feather="trash-2" width="15"></i>
+                                                                Hapus</button>
+                                                        </form>
+                                                    @endif
                                                 </div>
                                             </td>
                                         @endif
