@@ -25,20 +25,28 @@
                         aria-expanded="{{ request()->is('siswa*') || request()->is('guru*') ? true : false }}"
                         aria-controls="pengguna">
                         <i class="link-icon" data-feather="feather"></i>
-                        <span class="link-title">Pengguna</span>
+                        <span class="link-title">Data Master</span>
                         <i class="link-arrow" data-feather="chevron-down"></i>
                     </a>
-                    <div class="collapse {{ request()->is('siswa*') || request()->is('guru*') ? 'show' : '' }}"
+                    <div class="collapse {{ request()->is('siswa*') || request()->is('guru*') || request()->is('jenis-pelanggaran*') ? 'show' : '' }}"
                         id="pengguna">
                         <ul class="nav sub-menu">
                             <li class="nav-item">
                                 <a href="{{ route('siswa.index') }}"
-                                    class="nav-link {{ active_class(['siswa']) }}">Siswa</a>
+                                    class="nav-link {{ active_class(['siswa*']) }}">Siswa</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('guru.index') }}"
-                                    class="nav-link {{ active_class(['guru']) }}">Guru</a>
+                                    class="nav-link {{ active_class(['guru*']) }}">Guru</a>
                             </li>
+
+                            @if (Auth::user()->role === 'Admin')
+                                <li class="nav-item">
+                                    <a href="{{ route('jenis-pelanggaran.index') }}"
+                                        class="nav-link {{ active_class(['jenis-pelanggaran*']) }}">Jenis
+                                        Pelanggaran</a>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                 </li>

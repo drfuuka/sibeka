@@ -118,20 +118,34 @@
                                         <td>{{ $item->siswa->detail->nis }}</td>
                                         <td>{{ $item->siswa->detail->kelas }}</td>
                                         <td>{{ $item->tanggal }}</td>
-                                        <td>{{ $item->jenis_pelanggaran }}</td>
-                                        <td>{{ $item->poin }}</td>
+                                        <td>{{ $item->jenisPelanggaran?->jenis_pelanggaran }}</td>
+                                        <td>{{ $item->jenisPelanggaran?->poin }}</td>
                                         <td>{{ $item->total_poin }}</td>
                                         <td>{{ $item->pelapor }}</td>
                                         @if (Auth::user()->role === 'BK' || Auth::user()->role === 'Guru')
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    <form action="{{ route('pelanggaran.cetak-sp', $item->id) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-outline-primary btn-sm"><i
-                                                                data-feather="printer" width="15"></i>
-                                                            Cetak SP</button>
-                                                    </form>
+                                                    @php
+                                                        $sp = null;
+                                                        if ($item->total_poin === 75) {
+                                                            $sp = 3;
+                                                        }
+                                                        if ($item->total_poin >= 50) {
+                                                            $sp = 2;
+                                                        }
+                                                        if ($item->total_poin >= 30) {
+                                                            $sp = 1;
+                                                        }
+                                                    @endphp
+                                                    @if ($sp)
+                                                        <form action="{{ route('pelanggaran.cetak-sp', $item->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-outline-primary btn-sm"><i
+                                                                    data-feather="printer" width="15"></i>
+                                                                Cetak SP {{ $sp }}</button>
+                                                        </form>
+                                                    @endif
                                                     @if (Auth::user()->role === 'BK')
                                                         <a href="{{ route('pelanggaran.edit', $item->id) }}"
                                                             class="btn btn-primary btn-sm"><i data-feather="edit-2"

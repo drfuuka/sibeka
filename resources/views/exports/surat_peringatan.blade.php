@@ -307,7 +307,7 @@
                 melanggar peraturan sekolah, yaitu:</span>
         </p>
         <ul>
-            <li> {{ $pelanggaran->jenis_pelanggaran }} </li>
+            <li> {{ $pelanggaran->jenisPelanggaran->jenis_pelanggaran }} </li>
         </ul>
         <p style="font-size: 11pt; margin-top: 30px">
             <span>Kami berharap dengan adanya surat ini, siswa bisa berubah

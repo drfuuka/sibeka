@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PelanggaranExport;
+use App\Models\JenisPelanggaran;
 use App\Models\Pelanggaran;
 use App\Models\User;
 use Carbon\Carbon;
@@ -30,7 +31,13 @@ class PelanggaranController extends Controller
         }
         
         $data['pelanggaran'] = $data['pelanggaran']->map(function ($item) {
-            $item->total_poin = $item->siswa->pelanggaran->sum('poin');
+            $totalPoin = 0;
+
+            foreach ($item->siswa->pelanggaran as $pelanggaran) {
+                $totalPoin += $pelanggaran->jenisPelanggaran?->poin;
+            }
+            
+            $item->total_poin = $totalPoin;
             return $item;
         });
 
@@ -46,6 +53,7 @@ class PelanggaranController extends Controller
     public function create()
     {
         $data['daftarSiswa'] = User::where('role', 'Siswa')->get();
+        $data['jenisPelanggaran'] = JenisPelanggaran::get();
 
         return view('pages.pelanggaran.create', $data);
     }
@@ -61,20 +69,18 @@ class PelanggaranController extends Controller
         DB::beginTransaction();
 
         $request->validate([
-            'user_id'           => ['required', 'string', 'exists:ms_user,id'],
-            'tanggal'           => ['required', 'string', 'date'],
-            'jenis_pelanggaran' => ['required', 'string'],
-            'poin'              => ['required', 'string'],
-            'pelapor'           => ['required', 'string'],
+            'user_id'              => ['required', 'string', 'exists:ms_user,id'],
+            'tanggal'              => ['required', 'string', 'date'],
+            'jenis_pelanggaran_id' => ['required', 'string', 'exists:ms_pelanggaran,id'],
+            'pelapor'              => ['required', 'string'],
         ]);
 
         // buat data pelanggaran
         Pelanggaran::create([
-            'user_id'           => $request->user_id,
-            'tanggal'           => Carbon::create($request->tanggal),
-            'jenis_pelanggaran' => $request->jenis_pelanggaran,
-            'poin'              => $request->poin,
-            'pelapor'           => $request->pelapor,
+            'user_id'              => $request->user_id,
+            'tanggal'              => Carbon::create($request->tanggal),
+            'jenis_pelanggaran_id' => $request->jenis_pelanggaran_id,
+            'pelapor'              => $request->pelapor,
         ]);
 
         DB::commit();
@@ -120,21 +126,19 @@ class PelanggaranController extends Controller
         DB::beginTransaction();
 
         $request->validate([
-            'user_id'           => ['required', 'string', 'exists:ms_user,id'],
-            'tanggal'           => ['required', 'string', 'date'],
-            'jenis_pelanggaran' => ['required', 'string'],
-            'poin'              => ['required', 'string'],
-            'pelapor'           => ['required', 'string'],
+            'user_id'              => ['required', 'string', 'exists:ms_user,id'],
+            'tanggal'              => ['required', 'string', 'date'],
+            'jenis_pelanggaran_id' => ['required', 'string', 'exists:ms_pelanggaran,id'],
+            'pelapor'              => ['required', 'string'],
         ]);
 
         $pelanggaran = Pelanggaran::find($id);
 
         // update data siswa detail
-        $pelanggaran->user_id           = $request->user_id;
-        $pelanggaran->tanggal           = Carbon::create($request->tanggal);
-        $pelanggaran->jenis_pelanggaran = $request->jenis_pelanggaran;
-        $pelanggaran->poin              = $request->poin;
-        $pelanggaran->pelapor           = $request->pelapor;
+        $pelanggaran->user_id              = $request->user_id;
+        $pelanggaran->tanggal              = Carbon::create($request->tanggal);
+        $pelanggaran->jenis_pelanggaran_id = $request->jenis_pelanggaran_id;
+        $pelanggaran->pelapor              = $request->pelapor;
 
         $pelanggaran->save();
 
@@ -179,7 +183,12 @@ class PelanggaranController extends Controller
     {
         $dataPelanggaran = Pelanggaran::with('siswa.pelanggaran')->find($id);
         
-        $totalPoinPelanggaran = $dataPelanggaran?->siswa?->pelanggaran?->sum('poin') ?? 0;
+        
+        $totalPoinPelanggaran = 0;
+
+        foreach ($dataPelanggaran->siswa->pelanggaran as $pelanggaran) {
+            $totalPoinPelanggaran += $pelanggaran->jenisPelanggaran?->poin;
+        }
 
         $jenisSp = null;
         if($totalPoinPelanggaran === 100) {
@@ -224,5 +233,12 @@ class PelanggaranController extends Controller
         
         // Output PDF to the browser
         return $dompdf->stream('lpj_gudep.pdf');
+    }
+
+    public function getPoin($id)
+    {
+        $jenisPelanggaran = JenisPelanggaran::find($id);
+
+        return response($jenisPelanggaran->poin);
     }
 }

@@ -3,7 +3,7 @@
 @section('content')
     <nav class="page-breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Pengguna</li>
+            <li class="breadcrumb-item">Data Master</li>
             <li class="breadcrumb-item"><a href="{{ route('guru.index') }}">Guru</a></li>
             <li class="breadcrumb-item active" aria-current="page">Tambah</li>
         </ol>

@@ -60,25 +60,22 @@
 
                         <div class="mb-3">
                             <label for="jenis_pelanggaran" class="form-label">Jenis Pelanggaran</label>
-                            <input type="text" class="form-control" id="jenis_pelanggaran"
-                                placeholder="Masukkan jenis pelanggaran" name="jenis_pelanggaran"
-                                value="{{ old('jenis_pelanggaran') }}">
-                            @error('jenis_pelanggaran')
-                                <small class="text-danger" role="alert">
-                                    {{ $message }}
-                                </small>
-                            @enderror
+                            <select class="js-example-basic-single form-select" data-width="100%"
+                                name="jenis_pelanggaran_id" id="jenis_pelanggaran">
+                                <option disabled selected>Pilih jenis pelanggaran</option>
+                                @foreach ($jenisPelanggaran as $item)
+                                    <option value="{{ $item->id }}"
+                                        {{ $item->id === old('jenis_pelanggaran_id') ? 'selected' : '' }}>
+                                        {{ $item->jenis_pelanggaran }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="mb-3">
                             <label for="poin" class="form-label">Poin Pelanggaran</label>
                             <input type="number" class="form-control" id="poin"
-                                placeholder="Masukkan poin pelanggaran" name="poin" value="{{ old('poin') }}">
-                            @error('poin')
-                                <small class="text-danger" role="alert">
-                                    {{ $message }}
-                                </small>
-                            @enderror
+                                placeholder="Pilih jenis pelanggaran dahulu" disabled>
                         </div>
 
                         <div class="mb-3">
@@ -112,3 +109,24 @@
     <script src="{{ asset('assets/js/select2.js') }}"></script>
     <script src="{{ asset('assets/js/datepicker.js') }}"></script>
 @endpush
+
+
+@section('script')
+    <script>
+        $(document).ready(function() {
+            function handleJenisPelanggaranChange(val) {
+                $.ajax({
+                    url: `${val}/poin`,
+                    success: function(result) {
+                        $('#poin').val(result)
+                    },
+                })
+            }
+
+            $('#jenis_pelanggaran').on('change', function() {
+                var jenisPelanggaranId = $(this).val();
+                handleJenisPelanggaranChange(jenisPelanggaranId)
+            })
+        })
+    </script>
+@endsection

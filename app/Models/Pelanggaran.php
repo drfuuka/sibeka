@@ -15,12 +15,15 @@ class Pelanggaran extends Model
     protected $fillable = [
         'user_id',
         'tanggal',
-        'jenis_pelanggaran',
-        'poin',
+        'jenis_pelanggaran_id',
         'pelapor',
     ];
 
     public function siswa() {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function jenisPelanggaran() {
+        return $this->belongsTo(JenisPelanggaran::class, 'jenis_pelanggaran_id', 'id');
     }
 }

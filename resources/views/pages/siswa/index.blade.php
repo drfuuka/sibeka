@@ -7,7 +7,7 @@
 @section('content')
     <nav class="page-breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Pengguna</li>
+            <li class="breadcrumb-item">Data Master</li>
             <li class="breadcrumb-item active" aria-current="page">Siswa</li>
         </ol>
     </nav>
@@ -54,7 +54,7 @@
                                             <td>
                                                 <div class="d-flex gap-2">
                                                     <a href="{{ route('siswa.edit', $item->id) }}"
-                                                        class="btn btn-primary btn-sm"><i data-feather="pencil"
+                                                        class="btn btn-primary btn-sm"><i data-feather="edit-2"
                                                             width="15"></i></i>
                                                         Edit</button>
                                                     </a>

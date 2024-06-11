@@ -4,9 +4,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BimbinganController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\JenisPelanggaranController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SiswaController;
+use App\Models\JenisPelanggaran;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
@@ -39,11 +41,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    
+    Route::get('pelanggaran/{id}/poin', [PelanggaranController::class, 'getPoin']);
 
     Route::middleware('role:Admin,BK,Guru,Kepala Sekolah')->group(function() {
         Route::middleware('role:Admin')->group(function () {
             Route::resource('siswa', SiswaController::class);
             Route::resource('guru', GuruController::class);
+            Route::resource('jenis-pelanggaran', JenisPelanggaranController::class);
         });
         
         Route::resource('siswa', SiswaController::class)->only('index');
@@ -66,6 +71,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('bimbingan', BimbinganController::class);
     });
     Route::resource('bimbingan', BimbinganController::class)->only('index');
+
 });
 
 Route::get('/clear-cache', function() {
