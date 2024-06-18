@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
         Route::middleware('role:Admin')->group(function () {
             Route::resource('siswa', SiswaController::class);
             Route::resource('guru', GuruController::class);
+        });
+
+        Route::middleware('role:Admin,BK')->group(function () {
             Route::resource('jenis-pelanggaran', JenisPelanggaranController::class);
         });
         

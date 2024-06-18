@@ -108,8 +108,9 @@ class PelanggaranController extends Controller
     public function edit($id)
     {
 
-        $data['daftarSiswa'] = User::where('role', 'Siswa')->get();
-        $data['pelanggaran'] = Pelanggaran::find($id);
+        $data['daftarSiswa']      = User::where('role', 'Siswa')->get();
+        $data['pelanggaran']      = Pelanggaran::find($id);
+        $data['jenisPelanggaran'] = JenisPelanggaran::get();
 
         return view('pages.pelanggaran.edit', $data);
     }

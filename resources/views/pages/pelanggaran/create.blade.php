@@ -110,7 +110,6 @@
     <script src="{{ asset('assets/js/datepicker.js') }}"></script>
 @endpush
 
-
 @section('script')
     <script>
         $(document).ready(function() {

@@ -40,7 +40,7 @@
                                     class="nav-link {{ active_class(['guru*']) }}">Guru</a>
                             </li>
 
-                            @if (Auth::user()->role === 'Admin')
+                            @if (Auth::user()->role === 'Admin' || Auth::user()->role === 'BK')
                                 <li class="nav-item">
                                     <a href="{{ route('jenis-pelanggaran.index') }}"
                                         class="nav-link {{ active_class(['jenis-pelanggaran*']) }}">Jenis
